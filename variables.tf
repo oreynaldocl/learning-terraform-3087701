@@ -1,4 +1,5 @@
-#variable "instance_type" {
-#  description = "Type of EC2 instance to provision"
-#  default     = "t3.nano"
-#}
+variable "environment" {
+  type        = string
+  description = "This is the enviroment on which resource is to be created."
+  default     = "do"
+}
