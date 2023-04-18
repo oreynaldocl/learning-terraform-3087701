@@ -90,7 +90,7 @@ resource "aws_rds_cluster" "hopper_contact" {
   engine_mode             = "provisioned"
   engine_version          = "8.0.mysql_aurora.3.03.0"
   db_subnet_group_name    = aws_db_subnet_group.database_subnet_group.name
-  availability_zones      = data.aws_availability_zones.available_zones.names[0]
+  availability_zones      = data.aws_availability_zones.available_zones.names
 
   database_name   = "hopper_contact"
   master_username = "postgres"
