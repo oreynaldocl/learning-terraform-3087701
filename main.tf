@@ -1,10 +1,3 @@
-# configured aws provider with proper credentials
-provider "aws" {
-  region  = "us-west-2"
-  # profile = "" with local configured profile
-}
-
-
 # create default vpc if one does not exit
 resource "aws_default_vpc" "default_vpc" {
   tags = {
@@ -64,14 +57,14 @@ resource "aws_security_group" "database_security_group" {
     from_port        = 3306
     to_port          = 3306
     protocol         = "tcp"
-    security_groups  = [aws_security_group.webserver_security_group.id]
+    security_groups  = ["0.0.0.0/0"]
   }
 
   egress {
     from_port        = 0
     to_port          = 0
     protocol         = -1
-    security_groups  = [aws_security_group.webserver_security_group.id]
+    security_groups  = ["0.0.0.0/0"]
   }
 
   tags   = {
@@ -91,20 +84,57 @@ resource "aws_db_subnet_group" "database_subnet_group" {
   }
 }
 
-
-# create the rds instance
-resource "aws_db_instance" "db_instance" {
-  engine                  = "mysql"
-  engine_version          = "8.0.31"
-  multi_az                = false
-  identifier              = "dev-db-instance"
-  username                = "admin"
-  password                = "Control*1234"
-  instance_class          = "db.t2.micro"
-  allocated_storage       = 20
+resource "aws_rds_cluster" "hopper_contact" {
+  cluster_identifier      = "hopper-contact-${var.environment}"
+  engine                  = "aurora-mysql"
+  engine_mode             = "provisioned"
+  engine_version          = "8.0.mysql_aurora.3.03.0"
   db_subnet_group_name    = aws_db_subnet_group.database_subnet_group.name
-  vpc_security_group_ids  = [aws_security_group.database_security_group.id]
   availability_zone       = data.aws_availability_zones.available_zones.names[0]
-  db_name                 = "applicationdb"
-  skip_final_snapshot     = false
+
+  database_name   = "hopper_contact"
+  master_username = "postgres"
+  master_password = "Control*123"
+
+  backup_retention_period       = 5
+  preferred_backup_window       = "07:00-09:00"
+  skip_final_snapshot           = true
+  allow_major_version_upgrade   = false
+  copy_tags_to_snapshot         = false
+  deletion_protection           = false
+
+  # final_snapshot_identifier = "skill-control-cluster-backup-${random_id.id.hex}"
+  # iam_database_authentication_enabled = true
+
+  serverlessv2_scaling_configuration {
+    max_capacity = 2
+    min_capacity = 0.5
+  }
+  tags = {
+    Owner = "Team"
+  }
 }
+
+resource "aws_rds_cluster_instance" "hopper_contact" {
+  cluster_identifier = aws_rds_cluster.hopper_contact.id
+  instance_class     = "db.serverless"
+  engine             = aws_rds_cluster.hopper_contact.engine
+  engine_version     = aws_rds_cluster.hopper_contact.engine_version
+}
+
+# # create the rds instance
+# resource "aws_db_instance" "db_instance" {
+#   engine                  = "mysql"
+#   engine_version          = "8.0.31"
+#   multi_az                = false
+#   identifier              = "dev-db-instance"
+#   username                = "admin"
+#   password                = "Control*1234"
+#   instance_class          = "db.t2.micro"
+#   allocated_storage       = 20
+#   db_subnet_group_name    = aws_db_subnet_group.database_subnet_group.name
+#   vpc_security_group_ids  = [aws_security_group.database_security_group.id]
+#   availability_zone       = data.aws_availability_zones.available_zones.names[0]
+#   db_name                 = "applicationdb"
+#   skip_final_snapshot     = false
+# }
