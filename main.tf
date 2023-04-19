@@ -20,29 +20,29 @@ resource "aws_default_subnet" "subnet_az2" {
   availability_zone = data.aws_availability_zones.available_zones.names[1]
 }
 
-resource "aws_db_security_group" "rds_sg" {
-  name = "rds_sg"
-  description = "enable mysql/aurora access on port 3306"
-  vpc_id      = aws_default_vpc.default_vpc.id
+# resource "aws_db_security_group" "rds_sg" {
+#   name = "rds_sg"
+#   description = "enable mysql/aurora access on port 3306"
+#   vpc_id      = aws_default_vpc.default_vpc.id
 
-  ingress {
-    from_port        = 3306
-    to_port          = 3306
-    protocol         = "tcp"
-    security_groups  = ["0.0.0.0/0"]
-  }
+#   ingress {
+#     from_port        = 3306
+#     to_port          = 3306
+#     protocol         = "tcp"
+#     security_groups  = ["0.0.0.0/0"]
+#   }
 
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = -1
-    security_groups  = ["0.0.0.0/0"]
-  }
+#   egress {
+#     from_port        = 0
+#     to_port          = 0
+#     protocol         = -1
+#     security_groups  = ["0.0.0.0/0"]
+#   }
 
-  tags   = {
-    Name = "database security group"
-  }
-}
+#   tags   = {
+#     Name = "database security group"
+#   }
+# }
 
 # create the subnet group for the rds instance
 resource "aws_db_subnet_group" "database_subnet_group" {
@@ -62,7 +62,7 @@ resource "aws_rds_cluster" "hopper_contact" {
   engine_version          = "8.0.mysql_aurora.3.03.0"
   db_subnet_group_name    = aws_db_subnet_group.database_subnet_group.name
   availability_zones      = [data.aws_availability_zones.available_zones.names[0]]
-  vpc_security_group_ids  = aws_db_security_group.rds_sg.id
+  # vpc_security_group_ids  = aws_db_security_group.rds_sg.id
 
   database_name   = "hopper_contact"
   master_username = "postgres"
