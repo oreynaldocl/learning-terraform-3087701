@@ -20,6 +20,13 @@ resource "aws_default_subnet" "subnet_az2" {
   availability_zone = data.aws_availability_zones.available_zones.names[1]
 }
 
+data "aws_security_group" "aurora_sg" {
+  filter {
+    name   = "tag:Owner"
+    values = ["DFWTeam"]
+  }
+}
+
 # resource "aws_db_security_group" "rds_sg" {
 #   name = "rds_sg"
 #   description = "enable mysql/aurora access on port 3306"
@@ -51,7 +58,7 @@ resource "aws_db_subnet_group" "database_subnet_group" {
   description  = "Subnets for DB instance"
 
   tags   = {
-    Name = "DB-subnets"
+    Owner = "DFWTeam"
   }
 }
 
@@ -62,16 +69,17 @@ resource "aws_rds_cluster" "hopper_contact" {
   engine_version          = "8.0.mysql_aurora.3.03.0"
   db_subnet_group_name    = aws_db_subnet_group.database_subnet_group.name
   availability_zones      = [data.aws_availability_zones.available_zones.names[0]]
-  # vpc_security_group_ids  = aws_db_security_group.rds_sg.id
+  vpc_security_group_ids  = [data.aws_security_group.aurora_sg.id]
 
   database_name   = "hopper_contact"
-  master_username = "postgres"
+  master_username = "dhc_deploy"
   master_password = "Control*123"
 
   backup_retention_period       = 5
   preferred_backup_window       = "07:00-09:00"
   skip_final_snapshot           = true
   allow_major_version_upgrade   = false
+  
   copy_tags_to_snapshot         = false
   deletion_protection           = false
 
@@ -83,15 +91,22 @@ resource "aws_rds_cluster" "hopper_contact" {
     min_capacity = 0.5
   }
   tags = {
-    Owner = "Team"
+    Owner = "DFWTeam"
   }
 }
 
 resource "aws_rds_cluster_instance" "hopper_contact" {
+  identifier = "hopper-contact"
   cluster_identifier = aws_rds_cluster.hopper_contact.id
   instance_class     = "db.serverless"
   engine             = aws_rds_cluster.hopper_contact.engine
   engine_version     = aws_rds_cluster.hopper_contact.engine_version
+
+  publicly_accessible = true
+  auto_minor_version_upgrade = false
+  tags = {
+    Owner = "DFWTeam"
+  }
 }
 
 # # create the rds instance
