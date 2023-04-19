@@ -20,6 +20,19 @@ resource "aws_default_subnet" "subnet_az2" {
   availability_zone = data.aws_availability_zones.available_zones.names[1]
 }
 
+# Using guide https://awstip.com/managing-secrets-on-terraform-71ed245a455f
+data "aws_secretsmanager_secret_version" "creds" {
+  # Here goes the name you gave to your secret
+  secret_id = "dh_credentials"
+}
+
+# Decode from json
+locals {
+  db_creds = jsondecode(
+    data.aws_secretsmanager_secret_version.creds.secret_string
+  )
+}
+
 data "aws_security_group" "aurora_sg" {
   filter {
     name   = "tag:Owner"
@@ -72,8 +85,8 @@ resource "aws_rds_cluster" "hopper_contact" {
   vpc_security_group_ids  = [data.aws_security_group.aurora_sg.id]
 
   database_name   = "hopper_contact"
-  master_username = "dhc_deploy"
-  master_password = "Control*123"
+  master_username = local.db_creds.DHContactUser
+  master_password = local.db_creds.DHContactPass
 
   backup_retention_period       = 5
   preferred_backup_window       = "07:00-09:00"
