@@ -48,7 +48,7 @@ locals {
 resource "aws_security_group" "aurora_sg" {
   name = "rds_sg_created"
   description = "enable mysql/aurora access on port 3306"
-  vpc_id      = data.selected.id
+  vpc_id      = data.aws_vpc.selected.id
 
   ingress {
     from_port        = 3306
