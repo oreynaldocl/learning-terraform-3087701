@@ -3,9 +3,7 @@ locals {
 }
 # create default vpc if one does not exit
 data "aws_vpc" "dev_vpc" {
-  tags = {
-    Owner = local.Owner
-  }
+  id = "vpc-09dbe054bcdd37d88"
 }
 
 
