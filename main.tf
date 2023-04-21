@@ -1,11 +1,10 @@
 locals {
   Owner = "DFWTeam"
 }
-# create default vpc if one does not exit
-data "aws_vpc" "dev_vpc" {
-  id = "vpc-076d77269ad119f03" # default vpc
-}
 
+data "aws_vpc" "selected" {
+  name = var.vpc_name
+}
 
 # use data source to get all avalablility zones in region
 data "aws_availability_zones" "available_zones" {}
@@ -44,7 +43,7 @@ locals {
 resource "aws_security_group" "aurora_sg" {
   name = "rds_sg_created"
   description = "enable mysql/aurora access on port 3306"
-  vpc_id      = aws_vpc.dev_vpc.id
+  vpc_id      = aws_vpc.selected.id
 
   ingress {
     from_port        = 3306
