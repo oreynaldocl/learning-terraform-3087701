@@ -3,12 +3,12 @@ locals {
 }
 
 data "aws_vpc" "selected" {
-  id = var.vpc_id
+  # id = var.vpc_id
   # name = var.vpc_name
-  # filter {
-  #   name = "Name" #"tag:Name"
-  #   values = ["default vpc"]
-  # }
+  filter {
+    name = "Name" #"tag:Name"
+    values = ["default vpc"]
+  }
 }
 
 # use data source to get all avalablility zones in region
@@ -48,7 +48,7 @@ locals {
 resource "aws_security_group" "aurora_sg" {
   name = "rds_sg_created"
   description = "enable mysql/aurora access on port 3306"
-  vpc_id      = aws_vpc.selected.id
+  vpc_id      = data.selected.id
 
   ingress {
     from_port        = 3306
