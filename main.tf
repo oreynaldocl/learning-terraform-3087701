@@ -3,7 +3,7 @@ locals {
 }
 # create default vpc if one does not exit
 data "aws_vpc" "dev_vpc" {
-  id = "vpc-09dbe054bcdd37d88"
+  id = "vpc-076d77269ad119f03" # default vpc
 }
 
 
