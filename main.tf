@@ -45,8 +45,8 @@ locals {
 #   }
 # }
 
-resource "aws_security_group" "aurora_sg" {
-  name = "rds_sg_created"
+resource "aws_security_group" "aurora_sg_2" {
+  name = "rds_sg_created_2"
   description = "enable mysql/aurora access on port 3306"
   vpc_id      = data.aws_vpc.selected.id
 
@@ -88,7 +88,7 @@ resource "aws_rds_cluster" "hopper_contact" {
   engine_version          = "8.0.mysql_aurora.3.03.0"
   db_subnet_group_name    = aws_db_subnet_group.database_subnet_group.name
   availability_zones      = [data.aws_availability_zones.available_zones.names[0]]
-  vpc_security_group_ids  = [aws_security_group.aurora_sg.id]
+  vpc_security_group_ids  = [aws_security_group.aurora_sg_2.id]
 
   database_name   = "hopper_contact"
   master_username = local.db_creds.DHContactUser
