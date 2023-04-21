@@ -8,3 +8,8 @@ variable "vpc_name" {
   description = "VPC name used"
   default = "dev-vpc"
 }
+variable "vpc_id" {
+  type        = string
+  description = "VPC id used"
+  default = "vpc-076d77269ad119f03"
+}

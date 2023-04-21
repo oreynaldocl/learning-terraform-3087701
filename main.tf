@@ -3,11 +3,12 @@ locals {
 }
 
 data "aws_vpc" "selected" {
+  id = var.vpc_id
   # name = var.vpc_name
-  filter {
-    name = "Name" #"tag:Name"
-    values = ["default vpc"]
-  }
+  # filter {
+  #   name = "Name" #"tag:Name"
+  #   values = ["default vpc"]
+  # }
 }
 
 # use data source to get all avalablility zones in region
