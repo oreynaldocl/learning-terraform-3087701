@@ -1,7 +1,10 @@
+locals {
+  Owner = "DFWTeam"
+}
 # create default vpc if one does not exit
-resource "aws_default_vpc" "default_vpc" {
+data "aws_vpc" "dev_vpc" {
   tags = {
-    Name = "default vpc"
+    Owner = local.Owner
   }
 }
 
@@ -33,36 +36,37 @@ locals {
   )
 }
 
-data "aws_security_group" "aurora_sg" {
-  filter {
-    name   = "tag:Owner"
-    values = ["DFWTeam"]
-  }
-}
-
-# resource "aws_db_security_group" "rds_sg" {
-#   name = "rds_sg"
-#   description = "enable mysql/aurora access on port 3306"
-#   vpc_id      = aws_default_vpc.default_vpc.id
-
-#   ingress {
-#     from_port        = 3306
-#     to_port          = 3306
-#     protocol         = "tcp"
-#     security_groups  = ["0.0.0.0/0"]
-#   }
-
-#   egress {
-#     from_port        = 0
-#     to_port          = 0
-#     protocol         = -1
-#     security_groups  = ["0.0.0.0/0"]
-#   }
-
-#   tags   = {
-#     Name = "database security group"
+# data "aws_security_group" "aurora_sg" {
+#   filter {
+#     name   = "tag:Owner"
+#     values = [local.Owner]
 #   }
 # }
+
+resource "aws_security_group" "aurora_sg" {
+  name = "rds_sg_created"
+  description = "enable mysql/aurora access on port 3306"
+  vpc_id      = aws_vpc.dev_vpc.id
+
+  ingress {
+    from_port        = 3306
+    to_port          = 3306
+    protocol         = "tcp"
+    security_groups  = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = -1
+    security_groups  = ["0.0.0.0/0"]
+  }
+
+  tags   = {
+    Owner = local.Owner
+    Name = "database security group"
+  }
+}
 
 # create the subnet group for the rds instance
 resource "aws_db_subnet_group" "database_subnet_group" {
@@ -71,7 +75,7 @@ resource "aws_db_subnet_group" "database_subnet_group" {
   description  = "Subnets for DB instance"
 
   tags   = {
-    Owner = "DFWTeam"
+    Owner = local.Owner
   }
 }
 
@@ -104,7 +108,7 @@ resource "aws_rds_cluster" "hopper_contact" {
     min_capacity = 0.5
   }
   tags = {
-    Owner = "DFWTeam"
+    Owner = local.Owner
   }
 }
 
@@ -118,7 +122,7 @@ resource "aws_rds_cluster_instance" "hopper_contact" {
   publicly_accessible = true
   auto_minor_version_upgrade = false
   tags = {
-    Owner = "DFWTeam"
+    Owner = local.Owner
   }
 }
 
