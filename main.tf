@@ -5,7 +5,7 @@ locals {
 data "aws_vpc" "selected" {
   # name = var.vpc_name
   filter {
-    name = "tag:Name"
+    name = "Name" #"tag:Name"
     values = ["default vpc"]
   }
 }
