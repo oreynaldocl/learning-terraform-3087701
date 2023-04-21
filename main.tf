@@ -6,7 +6,7 @@ data "aws_vpc" "selected" {
   # id = var.vpc_id
   # name = var.vpc_name
   filter {
-    name = "Name" #"tag:Name"
+    name = "tag:Name" # "Name" don't work
     values = ["default vpc"]
   }
 }
