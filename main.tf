@@ -56,10 +56,14 @@ resource "aws_security_group" "aurora_sg_2" {
   }
 }
 
+resource "random_id" "id" {
+  byte_length = 8
+}
+
 resource "aws_vpc_security_group_ingress_rule" "all" {
   security_group_id = aws_security_group.aurora_sg_2.id
 
-  description = "shared_eks pods"
+  description = "shared_eks pods ${random_id.id.hex}"
   cidr_ipv4   = "0.0.0.0/0"
   from_port   = 3306
   ip_protocol = "tcp"
