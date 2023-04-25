@@ -17,5 +17,5 @@ variable "vpc_id" {
 variable "developers_cidr" {
   description = "CIDR range of VPN for developer workstations."
   type        = string
-  default     = "10.21.0.0/19"
+  default     = null
 }
